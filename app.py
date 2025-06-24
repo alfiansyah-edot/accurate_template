@@ -7,7 +7,7 @@ from datetime import datetime
 
 st.title("Accurate SO Template Generator")
 
-uploaded_file = st.file_uploader("Upload your Sales Order CSV file", type=["csv", "xlsx"])
+uploaded_file = st.file_uploader("Upload your Sales Order file", type=["csv", "xlsx"])
 
 if uploaded_file is not None:
     with st.spinner("Processing file, please wait..."):
