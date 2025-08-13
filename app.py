@@ -26,7 +26,7 @@ if uploaded_file is not None:
         data["rank"] = data.drop_duplicates(subset=["date", "number"]).reset_index(drop=True).reset_index().set_index(["date", "number"]).reindex(data.set_index(["date", "number"]).index)["index"].values + 1
         data["product_rank"] = data.groupby("number")["product"].rank(method="dense").astype(int)
 
-        data["date"] = data["date"].dt.strftime('%m/%d/%Y')
+        data["date"] = data["date"].dt.strftime('%d/%m/%Y')
         data = data.sort_values(by=["rank", "product_rank"])
 
         # Prepare header, item, expense rows
@@ -127,4 +127,5 @@ if uploaded_file is not None:
         file_name=filename,
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
+
 
