@@ -24,38 +24,80 @@ if uploaded_file is not None:
         # Ranking logic
         data = data.sort_values(by=["date", "number"])
         data["rank"] = data.drop_duplicates(subset=["date", "number"]).reset_index(drop=True).reset_index().set_index(["date", "number"]).reindex(data.set_index(["date", "number"]).index)["index"].values + 1
-        data["product_rank"] = data.groupby("number")["product_id"].rank(method="dense").astype(int)
+        data["product_rank"] = data.groupby("number")["product"].rank(method="dense").astype(int)
 
         data["date"] = data["date"].dt.strftime('%m/%d/%Y')
         data = data.sort_values(by=["rank", "product_rank"])
 
         # Prepare header, item, expense rows
-        header_rows = data[["rank", "date", "customer_id"]].drop_duplicates().copy()
+        header_rows = data[["rank", "date", "customer_id","price_before_tax","price_after_tax","discount","branch","payment_terms"]].copy().drop_duplicates()
         header_rows["row_or_header"] = 2
         header_rows["rank_part"] = 1
         header_rows["header"] = "HEADER"
         header_rows["no_form"] = ""
-        header_rows["tgl_pesanan"] = header_rows["date"]
-        header_rows["no_pelanggan"] = header_rows["customer_id"]
-        header_rows = header_rows[["row_or_header", "rank", "rank_part", "header", "no_form", "tgl_pesanan", "no_pelanggan"]]
-
-        item_rows = data[["rank", "product_id", "product", "qty"]].copy()
+        header_rows["tgl_pesanan"] = header_rows["date"]  # keep datetime
+        header_rows["no_pelanggan"] = header_rows["customer_id"]  # keep original type
+        header_rows["no_po"] = ""
+        header_rows["alamat"] = ""
+        header_rows["kena_ppn"]=(header_rows['price_before_tax'] != header_rows["price_after_tax"]).map({True: "Ya", False: "Tidak"})
+        header_rows["total_termasuk_ppn"]=(header_rows["price_before_tax"] != header_rows["price_after_tax"]).map({True: "Ya", False: "Tidak"})
+        header_rows["diskon_pesanan_percentage"] = ""
+        header_rows["diskon_pesanan_rupiah"] = header_rows["discount"].astype(float).round(2)
+        header_rows["keterangan"] = ""
+        header_rows["nama_cabang"] = header_rows["branch"]
+        header_rows["pengiriman"] = ""
+        header_rows["tanggal_pengiriman"] = ""
+        header_rows["FOB"] = ""
+        header_rows["syarat_pembayaran"] = header_rows["payment_terms"]
+        header_rows = header_rows.groupby(
+            ["row_or_header", "rank", "rank_part", "header", "no_form", "tgl_pesanan", "no_pelanggan","no_po","alamat","kena_ppn","total_termasuk_ppn","diskon_pesanan_percentage","keterangan","nama_cabang","pengiriman","tanggal_pengiriman","FOB","syarat_pembayaran"],
+            as_index=False
+        ).agg({'diskon_pesanan_rupiah': 'sum'})
+        header_rows = header_rows[["row_or_header", "rank", "rank_part", "header", "no_form", "tgl_pesanan", "no_pelanggan","no_po","alamat","kena_ppn","total_termasuk_ppn","diskon_pesanan_percentage","diskon_pesanan_rupiah","keterangan","nama_cabang","pengiriman","tanggal_pengiriman","FOB","syarat_pembayaran"]]
+        
+        # ITEM rows
+        item_rows = data[["rank", "product_id", "product", "qty","uom","qty_price","salesman_id"]].copy()
         item_rows["row_or_header"] = 2
         item_rows["rank_part"] = 2
         item_rows["header"] = "ITEM"
         item_rows["no_form"] = item_rows["product_id"]
         item_rows["tgl_pesanan"] = item_rows["product"]
         item_rows["no_pelanggan"] = pd.to_numeric(item_rows["qty"], errors='coerce')
-        item_rows = item_rows[["row_or_header", "rank", "rank_part", "header", "no_form", "tgl_pesanan", "no_pelanggan"]]
-
+        item_rows["no_po"] = item_rows["uom"]
+        item_rows["alamat"] = item_rows["qty_price"].astype(float).round(2)
+        item_rows["kena_ppn"] = ""
+        item_rows["total_termasuk_ppn"] = ""
+        item_rows["diskon_pesanan_percentage"] = ""
+        item_rows["diskon_pesanan_rupiah"] = ""
+        item_rows["keterangan"] = ""
+        item_rows["nama_cabang"] = ""
+        item_rows["pengiriman"] = item_rows["salesman_id"]
+        item_rows["tanggal_pengiriman"] = ""
+        item_rows["FOB"] = ""
+        item_rows["syarat_pembayaran"] = ""
+        item_rows = item_rows[["row_or_header", "rank", "rank_part", "header", "no_form", "tgl_pesanan", "no_pelanggan","no_po","alamat","kena_ppn","total_termasuk_ppn","diskon_pesanan_percentage","diskon_pesanan_rupiah","keterangan","nama_cabang","pengiriman","tanggal_pengiriman","FOB","syarat_pembayaran"]]
+        
+        # EXPENSE rows
         expense_rows = data[["rank"]].drop_duplicates().copy()
         expense_rows["row_or_header"] = 2
         expense_rows["rank_part"] = 3
         expense_rows["header"] = "EXPENSE"
-        expense_rows["no_form"] = ""
+        expense_rows["no_form"] = 0
         expense_rows["tgl_pesanan"] = ""
         expense_rows["no_pelanggan"] = ""
-        expense_rows = expense_rows[["row_or_header", "rank", "rank_part", "header", "no_form", "tgl_pesanan", "no_pelanggan"]]
+        expense_rows["no_po"] = ""
+        expense_rows["alamat"] = ""
+        expense_rows["kena_ppn"] = ""
+        expense_rows["total_termasuk_ppn"] = ""
+        expense_rows["diskon_pesanan_percentage"] = ""
+        expense_rows["diskon_pesanan_rupiah"] = ""
+        expense_rows["keterangan"] = ""
+        expense_rows["nama_cabang"] = ""
+        expense_rows["pengiriman"] = ""
+        expense_rows["tanggal_pengiriman"] = ""
+        expense_rows["FOB"] = ""
+        expense_rows["syarat_pembayaran"] = ""
+        expense_rows = expense_rows[["row_or_header", "rank", "rank_part", "header", "no_form", "tgl_pesanan", "no_pelanggan","no_po","alamat","kena_ppn","total_termasuk_ppn","diskon_pesanan_percentage","diskon_pesanan_rupiah","keterangan","nama_cabang","pengiriman","tanggal_pengiriman","FOB","syarat_pembayaran"]]
 
         transform_data = pd.concat([header_rows, item_rows, expense_rows], ignore_index=True)
         transform_data = transform_data.sort_values(by=["rank", "rank_part"]).reset_index(drop=True)
@@ -85,3 +127,4 @@ if uploaded_file is not None:
         file_name=filename,
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
+
