@@ -44,11 +44,11 @@ if uploaded_file is not None:
         header_rows["diskon_pesanan_percentage"] = ""
         header_rows["diskon_pesanan_rupiah"] = header_rows["discount"].astype(float).round(2)
         header_rows["keterangan"] = ""
-        header_rows["nama_cabang"] = header_rows["branch"]
+        header_rows["nama_cabang"] = ""
         header_rows["pengiriman"] = ""
         header_rows["tanggal_pengiriman"] = ""
         header_rows["FOB"] = ""
-        header_rows["syarat_pembayaran"] = header_rows["payment_terms"]
+        header_rows["syarat_pembayaran"] = ""
         header_rows = header_rows.groupby(
             ["row_or_header", "rank", "rank_part", "header", "no_form", "tgl_pesanan", "no_pelanggan","no_po","alamat","kena_ppn","total_termasuk_ppn","diskon_pesanan_percentage","keterangan","nama_cabang","pengiriman","tanggal_pengiriman","FOB","syarat_pembayaran"],
             as_index=False
@@ -127,5 +127,6 @@ if uploaded_file is not None:
         file_name=filename,
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
+
 
 
