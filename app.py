@@ -30,13 +30,13 @@ if uploaded_file is not None:
         data = data.sort_values(by=["rank", "product_rank"])
 
         # Prepare header, item, expense rows
-        header_rows = data[["rank", "date", "customer_id","price_before_tax","price_after_tax","discount","branch","payment_terms"]].copy().drop_duplicates()
+        header_rows = data[["rank", "date", "customer_external_code","price_before_tax","price_after_tax","discount","branch","payment_terms"]].copy().drop_duplicates()
         header_rows["row_or_header"] = 2
         header_rows["rank_part"] = 1
         header_rows["header"] = "HEADER"
         header_rows["no_form"] = ""
         header_rows["tgl_pesanan"] = header_rows["date"]  # keep datetime
-        header_rows["no_pelanggan"] = header_rows["customer_id"]  # keep original type
+        header_rows["no_pelanggan"] = header_rows["customer_external_code"]  # keep original type
         header_rows["no_po"] = ""
         header_rows["alamat"] = ""
         header_rows["kena_ppn"]=(header_rows['price_before_tax'] != header_rows["price_after_tax"]).map({True: "Ya", False: "Tidak"})
@@ -56,11 +56,11 @@ if uploaded_file is not None:
         header_rows = header_rows[["row_or_header", "rank", "rank_part", "header", "no_form", "tgl_pesanan", "no_pelanggan","no_po","alamat","kena_ppn","total_termasuk_ppn","diskon_pesanan_percentage","diskon_pesanan_rupiah","keterangan","nama_cabang","pengiriman","tanggal_pengiriman","FOB","syarat_pembayaran"]]
         
         # ITEM rows
-        item_rows = data[["rank", "product_id", "product", "qty","uom","qty_price","salesman_id"]].copy()
+        item_rows = data[["rank", "product_external_code", "product", "qty","uom","qty_price","salesman_exteranl_code"]].copy()
         item_rows["row_or_header"] = 2
         item_rows["rank_part"] = 2
         item_rows["header"] = "ITEM"
-        item_rows["no_form"] = item_rows["product_id"]
+        item_rows["no_form"] = item_rows["product_exteranl_code"]
         item_rows["tgl_pesanan"] = item_rows["product"]
         item_rows["no_pelanggan"] = pd.to_numeric(item_rows["qty"], errors='coerce')
         item_rows["no_po"] = item_rows["uom"]
@@ -71,7 +71,7 @@ if uploaded_file is not None:
         item_rows["diskon_pesanan_rupiah"] = ""
         item_rows["keterangan"] = ""
         item_rows["nama_cabang"] = ""
-        item_rows["pengiriman"] = item_rows["salesman_id"]
+        item_rows["pengiriman"] = item_rows["salesman_external_code"]
         item_rows["tanggal_pengiriman"] = ""
         item_rows["FOB"] = ""
         item_rows["syarat_pembayaran"] = ""
@@ -127,6 +127,7 @@ if uploaded_file is not None:
         file_name=filename,
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
+
 
 
 
