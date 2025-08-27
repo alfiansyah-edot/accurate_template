@@ -56,7 +56,7 @@ if uploaded_file is not None:
         header_rows = header_rows[["row_or_header", "rank", "rank_part", "header", "no_form", "tgl_pesanan", "no_pelanggan","no_po","alamat","kena_ppn","total_termasuk_ppn","diskon_pesanan_percentage","diskon_pesanan_rupiah","keterangan","nama_cabang","pengiriman","tanggal_pengiriman","FOB","syarat_pembayaran"]]
         
         # ITEM rows
-        item_rows = data[["rank", "product_external_code", "product", "qty","uom","qty_price","salesman_exteranl_code"]].copy()
+        item_rows = data[["rank", "product_external_code", "product", "qty","uom","qty_price","salesman_external_code"]].copy()
         item_rows["row_or_header"] = 2
         item_rows["rank_part"] = 2
         item_rows["header"] = "ITEM"
@@ -127,6 +127,7 @@ if uploaded_file is not None:
         file_name=filename,
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
+
 
 
 
