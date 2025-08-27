@@ -60,7 +60,7 @@ if uploaded_file is not None:
         item_rows["row_or_header"] = 2
         item_rows["rank_part"] = 2
         item_rows["header"] = "ITEM"
-        item_rows["no_form"] = item_rows["product_exteranl_code"]
+        item_rows["no_form"] = item_rows["product_external_code"]
         item_rows["tgl_pesanan"] = item_rows["product"]
         item_rows["no_pelanggan"] = pd.to_numeric(item_rows["qty"], errors='coerce')
         item_rows["no_po"] = item_rows["uom"]
@@ -127,6 +127,7 @@ if uploaded_file is not None:
         file_name=filename,
         mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
     )
+
 
 
 
